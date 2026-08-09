@@ -218,7 +218,7 @@
 <div class="container">
   <div class="header">
     <h2>🐾 Python & Odoo Tool Center 🐱</h2>
-    <p>แปลงรายชื่อ Field เป็น Python Code สไตล์แมวน้อยพาสเทลน่ารักๆ 🌸💜🐾</p>
+    <p>แปลงรายชื่อ Field เป็น Python Code 🌸💜🐾</p>
   </div>
 
   <div class="input-group">
@@ -264,13 +264,22 @@ amount_total"></textarea>
     <div class="output-box" id="output2">ผลลัพธ์ Data Mapping จะแสดงที่นี่...</div>
   </div>
 
-  <!-- Output 3: Full Script Boilerplate -->
+  <!-- Output 3: Full Script Boilerplate (Overwrite Existing File) -->
   <div class="output-card">
     <div class="output-header">
-      <span class="output-title">✨ 3. Full Python Script Boilerplate (Safe Overwrite Excel)</span>
-      <button class="btn-copy" onclick="copyResult('output3', this)">📋 Copy Full Script</button>
+      <span class="output-title">🔄 3. Full Script (เขียนทับไฟล์เดิม)</span>
+      <button class="btn-copy" onclick="copyResult('output3', this)">📋 Copy Replace Script</button>
     </div>
-    <div class="output-box" id="output3">ผลลัพธ์ Full Script จะแสดงที่นี่...</div>
+    <div class="output-box" id="output3">ผลลัพธ์ Script เขียนทับไฟล์เดิมจะแสดงที่นี่...</div>
+  </div>
+
+  <!-- Output 4: Full Script Boilerplate (New Excel File) -->
+  <div class="output-card">
+    <div class="output-header">
+      <span class="output-title">✨ 4. Full Script (สร้าง/โหลดไฟล์ใหม่ปกติ - ไม่แทนที่ข้อมูลเดิม)</span>
+      <button class="btn-copy" onclick="copyResult('output4', this)">📋 Copy New File Script</button>
+    </div>
+    <div class="output-box" id="output4">ผลลัพธ์ Script สร้างไฟล์ใหม่จะแสดงที่นี่...</div>
   </div>
 </div>
 
@@ -328,6 +337,7 @@ function processData() {
     document.getElementById("output1").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
     document.getElementById("output2").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
     document.getElementById("output3").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
+    document.getElementById("output4").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
     return;
   }
 
@@ -346,8 +356,8 @@ function processData() {
 
   const result2 = `formatted_data.append({\n${formattedDict}\n}) #ทั้งหมด ${fieldCount} Field`;
 
-  // --- Format 3: Full Python Script Boilerplate ---
-  const fullScript = `import xmlrpc.client
+  // --- Header ส่วนกลางสำหรับ Full Script ---
+  const scriptHeader = `import xmlrpc.client
 import pandas as pd
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -407,10 +417,13 @@ ${formattedDict}
 
 df = pd.DataFrame(formatted_data)
 output_file = r"D:\\Output From Python\\${excelFileName}"
-sheet_name = 'Odoo Report'
+sheet_name = 'Odoo Report'`;
+
+  // --- Format 3: Full Python Script (Overwrite / Replace Data) ---
+  const script3 = `${scriptHeader}
 
 # ==========================================
-# 4. อัปเดตข้อมูลลงไฟล์เดิม (ปลอดภัยต่อ Power Query / Power BI)
+# 4. อัปเดตข้อมูลลงไฟล์เดิม (เขียนทับแถวที่ 2 เป็นต้นไป - ปลอดภัยต่อ Power Query)
 # ==========================================
 print("⏳ กำลังอัปเดตข้อมูลลงไฟล์เดิม...")
 
@@ -465,11 +478,65 @@ for col in worksheet.columns:
     worksheet.column_dimensions[col_letter].width = max(max_len + 4, 12)
 
 wb.save(output_file)
-print(f"🎉 เสร็จเรียบร้อย! ข้อมูล {len(df)} แถว ถูกเขียนทับลงไฟล์ที่: {output_file}")`;
+print(f"🎉 เสร็จเรียบร้อย! ข้อมูล {len(df)} แถว ถูกเขียนทับลงไฟล์เดิมที่: {output_file}")`;
+
+  // --- Format 4: Full Python Script (Create New / Export Clean File) ---
+  const script4 = `${scriptHeader}
+
+# ==========================================
+# 4. สร้างและบันทึกเป็นไฟล์ Excel ใหม่ (Normal Export)
+# ==========================================
+print("⏳ กำลังสร้างไฟล์ Excel ใหม่...")
+
+wb = openpyxl.Workbook()
+worksheet = wb.active
+worksheet.title = sheet_name
+
+# เปิดแสดง Gridlines
+worksheet.views.sheetView[0].showGridLines = True
+
+header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+header_fill = PatternFill(start_color='1F4E78', end_color='1F4E78', fill_type='solid')
+thin_border = Border(
+    left=Side(style='thin', color='D9D9D9'),
+    right=Side(style='thin', color='D9D9D9'),
+    top=Side(style='thin', color='D9D9D9'),
+    bottom=Side(style='thin', color='D9D9D9')
+)
+
+# 1. ใส่ Header (แถวที่ 1)
+worksheet.append(list(df.columns))
+for cell in worksheet[1]:
+    cell.font = header_font
+    cell.fill = header_fill
+    cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+# 2. ใส่ข้อมูล Data Rows
+for row in df.itertuples(index=False):
+    worksheet.append(list(row))
+
+# 3. จัดสไตล์ขอบและขยายคอลัมน์อัตโนมัติ
+for col in worksheet.columns:
+    max_len = 0
+    col_letter = get_column_letter(col[0].column)
+    
+    for cell in col:
+        cell.border = thin_border
+        if cell.value is not None:
+            cell_len = len(str(cell.value))
+            if cell_len > max_len:
+                max_len = cell_len
+
+    worksheet.column_dimensions[col_letter].width = max(max_len + 4, 12)
+
+# บันทึกไฟล์ใหม่
+wb.save(output_file)
+print(f"🎉 เสร็จเรียบร้อย! สร้างไฟล์ Excel ใหม่จำนวน {len(df)} แถว ไว้ที่: {output_file}")`;
 
   document.getElementById("output1").innerText = result1;
   document.getElementById("output2").innerText = result2;
-  document.getElementById("output3").innerText = fullScript;
+  document.getElementById("output3").innerText = script3;
+  document.getElementById("output4").innerText = script4;
 }
 
 function copyResult(elementId, btnElement) {
