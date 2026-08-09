@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python & Odoo Field Generator 🐾🐱✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Pastel Pink - Purple - Blue Palette */
+      --bg-color: #faf5ff;          /* Soft Lavender-Pink tint background */
+      --card-bg: #ffffff;
+      --text-main: #2e1065;         /* Deep Purple-Navy text */
+      --text-muted: #6b7280;
+      --border-color: #f3e8ff;       /* Soft Purple Border */
+      
+      /* Accent Pastel Colors */
+      --btn-primary-text: #581c87;
+      --btn-copy-bg: #dbeafe;        /* Pastel Blue */
+      --btn-copy-text: #1e40af;
+      --btn-copy-hover: #bfdbfe;
+      
+      --code-bg: #faf7fd;
+      --focus-glow: #c084fc;
+    }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 30px 15px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 820px;
+      background: var(--card-bg);
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(192, 132, 252, 0.12);
+      border: 1px solid var(--border-color);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h2 {
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #3b0764;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-field {
+      flex: 1;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      background-color: var(--code-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      box-sizing: border-box;
+      color: #3b0764;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--focus-glow);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.25);
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      background-color: var(--code-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      box-sizing: border-box;
+      color: #3b0764;
+      resize: vertical;
+      transition: all 0.2s ease;
+      outline: none;
+      margin-bottom: 16px;
+    }
+
+    textarea:focus {
+      border-color: var(--focus-glow);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.25);
+    }
+
+    .btn-generate {
+      width: 100%;
+      padding: 13px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--btn-primary-text);
+      /* Gradient Pink -> Purple -> Blue */
+      background: linear-gradient(135deg, #fbcfe8 0%, #e9d5ff 50%, #dbeafe 100%);
+      border: 1px solid #e9d5ff;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-generate:hover {
+      background: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #93c5fd 100%);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(192, 132, 252, 0.35);
+    }
+
+    .output-card {
+      margin-top: 20px;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .output-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-copy {
+      font-family: 'Kanit', sans-serif;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--btn-copy-text);
+      background-color: var(--btn-copy-bg);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-copy:hover {
+      background-color: var(--btn-copy-hover);
+    }
+
+    .output-box {
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      color: #3b0764;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 0;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+      max-height: 250px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>🐾 Python & Odoo Tool Center 🐱</h2>
+    <p>แปลงรายชื่อ Field เป็น Python Code สไตล์แมวน้อยพาสเทลน่ารักๆ 🌸💜🐾</p>
+  </div>
+
+  <div class="input-group">
+    <div class="input-field">
+      <label for="modelName">🐈‍⬛ ชื่อ Odoo Model ( Technical Name ):</label>
+      <input type="text" id="modelName" value="sale.order" placeholder="เช่น sale.order, crm.lead, res.partner">
+    </div>
+    <div class="input-field">
+      <label for="excelFileName">🎀 ตั้งชื่อไฟล์ Excel ปลายทาง:</label>
+      <input type="text" id="excelFileName" value="Sale_Order_Data.xlsx" placeholder="เช่น Sale_Order_Data.xlsx">
+    </div>
+  </div>
+
+  <div class="input-section">
+    <label for="input">🐾 วางรายชื่อ Field (แยกบรรทัด):</label>
+    <textarea id="input" placeholder="🐾 วางรายชื่อ Field ตรงนี้...
+name
+create_date
+company_id
+salesperson_ids
+amount_total"></textarea>
+  </div>
+
+  <button class="btn-generate" onclick="processData()">
+    ✨ Generate All Formats & Boilerplate 🐾
+  </button>
+
+  <!-- Output 1: Python List -->
+  <div class="output-card">
+    <div class="output-header">
+      <span class="output-title">🐾 1. Python List Format</span>
+      <button class="btn-copy" onclick="copyResult('output1', this)">📋 Copy List</button>
+    </div>
+    <div class="output-box" id="output1">ผลลัพธ์ List จะแสดงที่นี่...</div>
+  </div>
+
+  <!-- Output 2: Odoo Mapping -->
+  <div class="output-card">
+    <div class="output-header">
+      <span class="output-title">🧶 2. Odoo Data Mapping (formatted_data)</span>
+      <button class="btn-copy" onclick="copyResult('output2', this)">📋 Copy Dict</button>
+    </div>
+    <div class="output-box" id="output2">ผลลัพธ์ Data Mapping จะแสดงที่นี่...</div>
+  </div>
+
+  <!-- Output 3: Full Script Boilerplate -->
+  <div class="output-card">
+    <div class="output-header">
+      <span class="output-title">✨ 3. Full Python Script Boilerplate (Safe Overwrite Excel)</span>
+      <button class="btn-copy" onclick="copyResult('output3', this)">📋 Copy Full Script</button>
+    </div>
+    <div class="output-box" id="output3">ผลลัพธ์ Full Script จะแสดงที่นี่...</div>
+  </div>
+</div>
+
+<script>
+/* ================= HELPERS ================= */
+
+function formatKeyName(field) {
+  const specialCases = {
+    'partner_id': 'Customer (Partner)',
+    'user_id': 'Salesperson (User)',
+    'team_id': 'Sales Team',
+    'partner_invoice_id': 'Partner Invoice'
+  };
+
+  if (specialCases[field]) return specialCases[field];
+
+  let cleanName = field;
+  if (cleanName.endsWith('_ids')) {
+    cleanName = cleanName.slice(0, -4);
+  } else if (cleanName.endsWith('_id')) {
+    cleanName = cleanName.slice(0, -3);
+  }
+
+  return cleanName
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function formatOdooValue(field) {
+  if (field.endsWith('_ids')) {
+    return `str(row.get('${field}', ''))`;
+  } else if (field.endsWith('_id')) {
+    return `get_m2o_name(row.get('${field}'))`;
+  } else if (field.startsWith('amount_') || field.startsWith('price_') || field.startsWith('qty_') || field.endsWith('_qty')) {
+    return `row.get('${field}', 0.0)`;
+  } else {
+    return `row.get('${field}', '')`;
+  }
+}
+
+/* ================= MAIN ================= */
+
+function processData() {
+  const raw = document.getElementById("input").value;
+  const modelName = document.getElementById("modelName").value.trim() || 'sale.order';
+  let excelFileName = document.getElementById("excelFileName").value.trim() || 'Odoo_Data.xlsx';
+  
+  if (!excelFileName.endsWith('.xlsx')) {
+    excelFileName += '.xlsx';
+  }
+
+  const lines = raw.split(/\n+/).map(l => l.trim()).filter(Boolean);
+
+  if (!lines.length) {
+    document.getElementById("output1").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
+    document.getElementById("output2").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
+    document.getElementById("output3").innerText = "🐾 กรุณากรอกข้อมูลอย่างน้อย 1 บรรทัดครับเหมียว~";
+    return;
+  }
+
+  const fieldCount = lines.length;
+
+  // --- Format 1: Python List ---
+  const formattedList = lines.map(item => `            '${item}',`).join('\n');
+  const result1 = `[\n${formattedList}\n] #ทั้งหมด ${fieldCount} Field`;
+
+  // --- Format 2: Odoo Mapping ---
+  const formattedDict = lines.map(item => {
+    const label = formatKeyName(item);
+    const valueExpr = formatOdooValue(item);
+    return `        "${label}": ${valueExpr},`;
+  }).join('\n');
+
+  const result2 = `formatted_data.append({\n${formattedDict}\n}) #ทั้งหมด ${fieldCount} Field`;
+
+  // --- Format 3: Full Python Script Boilerplate ---
+  const fullScript = `import xmlrpc.client
+import pandas as pd
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+# ==========================================
+# 1. ตั้งค่าการเชื่อมต่อ Odoo
+# ==========================================
+url = "https://ibcon.odooportal.com"
+db = ""        # ใส่ DB ของคุณ
+username = ""  # ใส่ Username
+password = ""  # ใส่ Password
+
+common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
+uid = common.authenticate(db, username, password, {})
+
+if not uid:
+    print("❌ เชื่อมต่อไม่สำเร็จ กรุณาตรวจสอบ DB, Username หรือ Password")
+    exit()
+
+models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
+
+# ==========================================
+# 2. ดึงข้อมูล Odoo
+# ==========================================
+print("⏳ กำลังดึงข้อมูลจาก Odoo...")
+
+records = models.execute_kw(
+    db, uid, password,
+    '${modelName}',
+    'search_read',
+    [],
+    {
+        'fields': [
+${formattedList}
+        ],
+        'limit': False
+    }
+)
+
+print(f"📦 ดึงข้อมูลได้ทั้งหมด: {len(records)} รายการ")
+
+# ==========================================
+# 3. จัดการข้อมูล Many2one / Data Formatting
+# ==========================================
+formatted_data = []
+
+def get_m2o_name(field_value):
+    if field_value and isinstance(field_value, (list, tuple)) and len(field_value) > 1:
+        return field_value[1]
+    return ""
+
+for row in records:
+    formatted_data.append({
+${formattedDict}
+    })
+
+df = pd.DataFrame(formatted_data)
+output_file = r"D:\\Output From Python\\${excelFileName}"
+sheet_name = 'Odoo Report'
+
+# ==========================================
+# 4. อัปเดตข้อมูลลงไฟล์เดิม (ปลอดภัยต่อ Power Query / Power BI)
+# ==========================================
+print("⏳ กำลังอัปเดตข้อมูลลงไฟล์เดิม...")
+
+header_font = Font(name='Calibri', size=11, bold=True, color='FFFFFF')
+header_fill = PatternFill(start_color='1F4E78', end_color='1F4E78', fill_type='solid')
+thin_border = Border(
+    left=Side(style='thin', color='D9D9D9'),
+    right=Side(style='thin', color='D9D9D9'),
+    top=Side(style='thin', color='D9D9D9'),
+    bottom=Side(style='thin', color='D9D9D9')
+)
+
+try:
+    wb = openpyxl.load_workbook(output_file)
+    if sheet_name in wb.sheetnames:
+        worksheet = wb[sheet_name]
+        if worksheet.max_row > 1:
+            worksheet.delete_rows(2, worksheet.max_row)
+    else:
+        worksheet = wb.create_sheet(title=sheet_name)
+        worksheet.append(list(df.columns))
+
+except FileNotFoundError:
+    wb = openpyxl.Workbook()
+    worksheet = wb.active
+    worksheet.title = sheet_name
+    worksheet.append(list(df.columns))
+
+worksheet.views.sheetView[0].showGridLines = True
+
+for cell in worksheet[1]:
+    cell.font = header_font
+    cell.fill = header_fill
+    cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+for row_idx, row_data in enumerate(df.itertuples(index=False), start=2):
+    for col_idx, value in enumerate(row_data, start=1):
+        cell = worksheet.cell(row=row_idx, column=col_idx, value=value)
+        cell.border = thin_border
+
+for col in worksheet.columns:
+    max_len = 0
+    col_letter = get_column_letter(col[0].column)
+    
+    for cell in col:
+        cell.border = thin_border
+        if cell.value is not None:
+            cell_len = len(str(cell.value))
+            if cell_len > max_len:
+                max_len = cell_len
+
+    worksheet.column_dimensions[col_letter].width = max(max_len + 4, 12)
+
+wb.save(output_file)
+print(f"🎉 เสร็จเรียบร้อย! ข้อมูล {len(df)} แถว ถูกเขียนทับลงไฟล์ที่: {output_file}")`;
+
+  document.getElementById("output1").innerText = result1;
+  document.getElementById("output2").innerText = result2;
+  document.getElementById("output3").innerText = fullScript;
+}
+
+function copyResult(elementId, btnElement) {
+  const outputText = document.getElementById(elementId).innerText;
+  
+  if (!outputText || outputText.startsWith("ผลลัพธ์") || outputText.startsWith("🐾")) return;
+
+  navigator.clipboard.writeText(outputText).then(() => {
+    const originalText = btnElement.innerText;
+    btnElement.innerText = "✅ Copied! 🐾";
+    setTimeout(() => {
+      btnElement.innerText = originalText;
+    }, 1500);
+  });
+}
+</script>
+
+</body>
+</html>
